@@ -21,6 +21,7 @@ The deliverables are:
 
 
 """
+import os
 import json
 import pickle
 import pandas as pd
@@ -30,7 +31,7 @@ from meli import full_pipe, make_report
 
 # You can safely assume that `build_dataset` is correctly implemented
 def build_dataset():
-    data = [json.loads(x) for x in open("MLA_100k.jsonlines")]
+    data = [json.loads(x) for x in open("../ml_evaluation/MLA_100k.jsonlines")]
     target = lambda x: x.get("condition")
     N = -10000
     X_train = data[:N]
@@ -52,6 +53,8 @@ if __name__ == "__main__":
     # The label of X_train[i] is y_train[i].
     # The label of X_test[i] is y_test[i].
     X_train, y_train, X_test, y_test = build_dataset()
+    
+    print('Dataset loaded!') 
 
     # Insert your code below this line:
     X_train = pd.DataFrame(X_train)
@@ -65,17 +68,28 @@ if __name__ == "__main__":
                                                       shuffle=True,
                                                       test_size=10_000)
 
+    print('Applying transformations to data...')
+
     # Step 2: Implement all transformations required for feature extraction
     X_train = full_pipe.fit_transform(X_train)
     X_val = full_pipe.transform(X_val)
     X_test = full_pipe.transform(X_test)
+    
+    print('Data is ready!')
 
     # Step 3: instantiate and fit a model
     # Note: I'm using CatBoost because it was the best model according
     # to the notebooks where I trained the gridsearch.
     # It's also quite faster than training a whole gridsearch.
-    cat = CatBoostClassifier(verbose=False)
+    
+    print('Training model...')
+
+    cat = CatBoostClassifier(verbose=True)
     cat.fit(X=X_train, y=y_train, eval_set=(X_val, y_val))
+    
+    print('Model trained!')
+
+    print('Exporting reports...')
 
     # Write reports to markdown
     make_report(cat,
@@ -89,7 +103,18 @@ if __name__ == "__main__":
                 y_test,
                 title='Test Metrics',
                 filename='test_report.md')
+    
+    os.system("cat cross_val_report.md")
+    
+    print("Showing test metrics..")
+    
+    os.system("cat test_report.md")
+    
+    print("Saving model to disk...")
 
     # Save to disk just in case
     with open('model.pkl', 'wb') as f:
         pickle.dump(cat, f)
+
+    print("Model saved to file model.pkl")
+    print("Finished!")

@@ -8,7 +8,11 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import make_pipeline, make_union, Pipeline
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import (
+    classification_report, 
+    confusion_matrix,
+    plot_roc_curve
+)
 
 
 class FeatureGeneration(TransformerMixin, BaseEstimator):
@@ -150,6 +154,7 @@ def make_report(
 
     y_hat = model.predict(X)
     report = classification_report(y, y_hat, output_dict=True)
+    
     report['accuracy'] = {
         'precision':'',
         'recall':'',
@@ -170,6 +175,11 @@ def make_report(
     fig.clear()
     del fig
     
+    roc_image_path = f'{base_path}_roc.png'
+    roc_curve = plot_roc_curve(model, X, y)
+    plt.savefig(roc_image_path)
+    del roc_curve
+    
     try:
         features = pd.Series(model.feature_importances_,
                              index=model.feature_names_)
@@ -185,6 +195,8 @@ def make_report(
     full_report += report.to_markdown()
     full_report += "\n\n### Confusion Matrix"
     full_report += f"\n\n![ ]({cm_image_path})"
+    full_report += "\n\n### ROC AUC Curve"
+    full_report += f"\n\n![ ]({roc_image_path})"
     
     if isinstance(features, pd.Series):
         plt.title(f'\nFeature Importances')
@@ -196,4 +208,3 @@ def make_report(
         
     with open(filename, 'w') as f:
         f.write(full_report)
-    
