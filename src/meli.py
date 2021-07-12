@@ -118,7 +118,7 @@ other_cols = ['warranty', 'deals', 'methods', 'free_shipping',
 
 feats = make_pipeline(FeatureGeneration())
 
-cats = make_pipeline(ColumnSelector(cols), OneHotEncoder())
+cats = make_pipeline(ColumnSelector(cat_cols), OneHotEncoder())
 
 others = make_pipeline(ColumnSelector(other_cols))
 
