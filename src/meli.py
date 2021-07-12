@@ -1,13 +1,17 @@
-from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn.pipeline import make_pipeline, make_union, Pipeline
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
+import os
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.decomposition import TruncatedSVD
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import make_pipeline, make_union, Pipeline
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 class FeatureGeneration(TransformerMixin, BaseEstimator):
-
     
     def __init__(self):
         self.columns = ['warranty', 'deals', 'methods', 'listing_type_id',
@@ -120,7 +124,10 @@ other_cols = ['warranty', 'deals', 'methods', 'free_shipping',
 title = 'title'
 
 feats = make_pipeline(FeatureGeneration())
-cats = make_pipeline(ColumnSelector(cat_cols), OneHotEncoder(handle_unknown='ignore'))
+cats = make_pipeline(
+    ColumnSelector(cat_cols),
+    OneHotEncoder(handle_unknown='ignore')
+)
 nlp = Pipeline(
     [
         ('col',ColumnSelector(title)),
@@ -131,3 +138,62 @@ nlp = Pipeline(
 others = make_pipeline(ColumnSelector(other_cols))
 pipe = make_union(cats, others, nlp)
 full_pipe = make_pipeline(feats, pipe)
+
+
+def make_report(
+        model,
+        X: pd.DataFrame,
+        y: pd.Series,
+        title: str='Train Metrics',
+        filename: str='report.md'
+    ) -> None:
+
+    y_hat = model.predict(X)
+    report = classification_report(y, y_hat, output_dict=True)
+    report['accuracy'] = {
+        'precision':'',
+        'recall':'',
+        'f1-score': report.get('accuracy', ''),
+        'support': report.get('macro avg', {}).get('support')
+    }
+    report = pd.DataFrame(report).T
+    
+    plt.title(f"\nConfusion Matrix\n")
+    fig = sns.heatmap(
+        confusion_matrix(y, y_hat),
+        annot=True,
+        fmt='.2f'
+    )
+    base_path = os.path.splitext(filename)[0]
+    cm_image_path =f'{base_path}_cf.png' 
+    plt.savefig(cm_image_path)
+    fig.clear()
+    del fig
+    
+    try:
+        features = pd.Series(model.feature_importances_,
+                             index=model.feature_names_)
+        features = features.sort_values(ascending=False)
+        features = features.head(20)
+    except Exception as e:
+        features = None
+    
+    full_report = f"# Model report\n"
+    full_report += f"## {title}\n"
+    full_report += f"\n### Algorithm information:\n\n{model.__str__()}\n"
+    full_report += f"\n### Classification_report:\n\n"
+    full_report += report.to_markdown()
+    full_report += "\n\n### Confusion Matrix"
+    full_report += f"\n\n![ ]({cm_image_path})"
+    
+    if isinstance(features, pd.Series):
+        plt.title(f'\nFeature Importances')
+        fig = sns.barplot(x=features.values, y=features.index)
+        fi_image_path = f'{base_path}_fi.png'
+        plt.savefig(fi_image_path)
+        full_report += "\n\n### Feature Importances"
+        full_report += f"\n\n![ ]({fi_image_path})"
+        
+    with open(filename, 'w') as f:
+        f.write(full_report)
+    
