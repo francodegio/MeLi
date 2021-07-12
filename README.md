@@ -45,12 +45,12 @@ The model contains 2 kinds of features:
 the titles.
 
 Highest `accuracy` scores obtained were:
-- 0.91 with trained data (80.000 observations)
-- 0.86 with cross validation data (10.000 observations)
-- 0.86 with test data (10.000 observations).
+- `0.91` with `train` data (80.000 observations)
+- `0.86` with `cross validation` data (10.000 observations)
+- `0.86` with `test` data (10.000 observations).
 
 The metric used was `accuracy` since the dataset was fairly balanced and to my understanding,
 there are not any kind of issues that disproportionally affect a class over the other.
 Additionally, both precision and recall metrics are quite balanced as well for each class.
 
-Finally, the best `roc_auc` score obtained was:
+Finally, the best `roc_auc` score obtained was `0.93`
