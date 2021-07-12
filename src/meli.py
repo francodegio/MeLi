@@ -1,6 +1,8 @@
 from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn.pipeline import make_pipeline, make_union
+from sklearn.pipeline import make_pipeline, make_union, Pipeline
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
 import pandas as pd
 
 
@@ -14,7 +16,7 @@ class FeatureGeneration(TransformerMixin, BaseEstimator):
                         'Transferencia bancaria', 'Tarjeta de crédito',
                         'Giro postal', 'Cheque certificado',
                         'MercadoPago', 'Efectivo', 'debit_cards',
-                        'accepts_mercadopago']
+                        'accepts_mercadopago', 'title']
 
 
     def fit(self, X, *_):
@@ -115,13 +117,17 @@ other_cols = ['warranty', 'deals', 'methods', 'free_shipping',
               'MercadoPago', 'Efectivo', 'debit_cards',
               'accepts_mercadopago']
 
+title = 'title'
 
 feats = make_pipeline(FeatureGeneration())
-
-cats = make_pipeline(ColumnSelector(cat_cols), OneHotEncoder())
-
+cats = make_pipeline(ColumnSelector(cat_cols), OneHotEncoder(handle_unknown='ignore'))
+nlp = Pipeline(
+    [
+        ('col',ColumnSelector(title)),
+        ('vect', TfidfVectorizer()),
+        ('dim', TruncatedSVD(100))
+    ]
+)
 others = make_pipeline(ColumnSelector(other_cols))
-
-pipe = make_union(cats, others)
-
+pipe = make_union(cats, others, nlp)
 full_pipe = make_pipeline(feats, pipe)
