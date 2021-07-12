@@ -35,13 +35,14 @@ $ python new_or_used.py
 This will save a pickle with a trained model, as well as a couple of markdown files
 that contain a report with the relevant metrics.
 
+----
 ## Notes on models
 You can find all the transformations and development of the models and code
 inside the `notebooks` directory.
 
 The model contains 2 kinds of features:
-- Intrinsic Features: those that are generated from different classifieds' attributes.
-- Text Features: a 100-dimension vector generated from text features extracted from
+- **Intrinsic Features**: those that are generated from different classifieds' attributes.
+- **Text Features**: a 100-dimension vector generated from text features extracted from
 the titles.
 
 Highest `accuracy` scores obtained were:
@@ -53,4 +54,5 @@ The metric used was `accuracy` since the dataset was fairly balanced and to my u
 there are not any kind of issues that disproportionally affect a class over the other.
 Additionally, both precision and recall metrics are quite balanced as well for each class.
 
-Finally, the best `roc_auc` score obtained was `0.93`
+Finally, the best `roc_auc` score obtained was `0.93` which was estimated to have
+a general understanding of the model.
