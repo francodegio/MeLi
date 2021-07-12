@@ -18,7 +18,7 @@ Activate such environment
 $ source meli/bin/activate
 ```
 
-### 2. Run setup.sh
+### 3. Run setup.sh
 ```bash
 $ sh setup.sh
 ```
