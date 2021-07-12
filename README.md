@@ -35,6 +35,12 @@ $ python new_or_used.py
 This will save a pickle with a trained model, as well as a couple of markdown files
 that contain a report with the relevant metrics.
 
+## Important!
+```
+The script was tested only in Ubuntu 18.04. If you have any issue running the script,
+there is a file named `new_or_used.py` that does not install any custom library and
+defines every object and function there.
+```
 ----
 ## Notes on models
 You can find all the transformations and development of the models and code
