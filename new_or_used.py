@@ -43,7 +43,7 @@ from sklearn.metrics import (
 
 # You can safely assume that `build_dataset` is correctly implemented
 def build_dataset():
-    data = [json.loads(x) for x in open("MLA_100k.jsonlines")]
+    data = [json.loads(x) for x in open("ml_evaluation/MLA_100k.jsonlines")]
     target = lambda x: x.get("condition")
     N = -10000
     X_train = data[:N]
