@@ -1,6 +1,6 @@
 # MeLi
 
-Challenge solution submition by Franco De Giovannini
+Challenge solution submission by Franco De Giovannini
 
 ## Installation
 ### 1. Clone repo and change directory
